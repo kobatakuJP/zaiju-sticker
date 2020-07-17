@@ -62,7 +62,7 @@
             });
         }
         function updateByLatLon(latlon) {
-            fetch(`http://geoapi.heartrails.com/api/xml?method=searchByGeoLocation&x=${latlon[1]}&y=${latlon[0]}`)
+            fetch(`https://geoapi.heartrails.com/api/xml?method=searchByGeoLocation&x=${latlon[1]}&y=${latlon[0]}`)
                 .then(resp => resp.text())
                 .then(xmlstr => {
                     const parser = new DOMParser()
