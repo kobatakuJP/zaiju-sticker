@@ -46,7 +46,7 @@
 
 <body>
     <div>
-        <p>県外ナンバーですが、私は</p>
+        <p><span id="type"></span>外ナンバーですが、私は</p>
         <p><span id="jp-place" class="prefecture-jp"></span></p>
         <p>在住者です。</p>
         <p>I live in <span id="en-place" class="prefecture-en"></span></p>
@@ -66,6 +66,7 @@
             });
         }
         function updatePlace(pref) {
+            document.getElementById("type").textContent = pref[pref.length - 1];
             document.getElementById("jp-place").textContent = pref;
             document.getElementById("en-place").textContent = prefJPToEn[pref]
         }
