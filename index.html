@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# website: http://ogp.me/ns/websaite#">
+    <meta property="og:url" content="http://★ページのURL" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="在住ステッカー" />
+    <meta property="og:description"
+        content="★ジョークアプリです。使用により発生したトラブルの責任は一切取りません。★定期的に今の座標から県名を取得し表示します。タブレットで表示して車の窓に設置し、あたかもそこ在住であるかのようにふるまいましょう。" />
+    <meta property="og:image" content="./img/" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>在住ステッカー</title>
+    <meta
+        content="★ジョークアプリです。使用により発生したトラブルの責任は一切取りません。★定期的に今の座標から県名を取得し表示します。タブレットで表示して車の窓に設置し、あたかもそこ在住であるかのようにふるまいましょう。"
+        name="description" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "Yu Gothic", "游ゴシック", YuGothic, "游ゴシック体";
+            font-weight: bold;
+            font-size: 1.5rem;
+            background-color: #edb918;
+            color: #333
+        }
+
+        .prefecture-jp {
+            color: #E5004F;
+            font-size: 7rem;
+        }
+
+        .prefecture-en {
+            color: #E5004F;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <p>県外ナンバーですが、私は</p>
+        <p><span id="jp-place" class="prefecture-jp"></span></p>
+        <p>在住者です。</p>
+        <p>I live in <span id="en-place" class="prefecture-en"></span></p>
+    </div>
+    <script>
+        const prefJPToEn = { "北海道": "HOKKAIDO", "青森県": "AOMORI", "岩手県": "IWATE", "宮城県": "MIYAGI", "秋田県": "AKITA", "山形県": "YAMAGATA", "福島県": "FUKUSHIMA", "茨城県": "IBARAKI", "栃木県": "TOCHIGI", "群馬県": "GUNMA", "埼玉県": "SAITAMA", "千葉県": "CHIBA", "東京都": "TOKYO", "神奈川県": "KANAGAWA", "新潟県": "NIIGATA", "富山県": "TOYAMA", "石川県": "ISHIKAWA", "福井県": "FUKUI", "山梨県": "YAMANASHI", "長野県": "NAGANO", "岐阜県": "GIFU", "静岡県": "SHIZUOKA", "愛知県": "AICHI", "三重県": "MIE", "滋賀県": "SHIGA", "京都府": "KYOTO", "大阪府": "OSAKA", "兵庫県": "HYOGO", "奈良県": "NARA", "和歌山県": "WAKAYAMA", "鳥取県": "TOTTORI", "島根県": "SHIMANE", "岡山県": "OKAYAMA", "広島県": "HIROSHIMA", "山口県": "YAMAGUCHI", "徳島県": "TOKUSHIMA", "香川県": "KAGAWA", "愛媛県": "EHIME", "高知県": "KOCHI", "福岡県": "FUKUOKA", "佐賀県": "SAGA", "長崎県": "NAGASAKI", "熊本県": "KUMAMOTO", "大分県": "OITA", "宮崎県": "MIYAZAKI", "鹿児島県": "KAGOSHIMA", "沖縄県": "OKINAWA" }
+        function update() {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                fetch(`http://geoapi.heartrails.com/api/xml?method=searchByGeoLocation&x=${pos.coords.longitude}&y=${pos.coords.latitude}`)
+                    .then(resp => resp.text())
+                    .then(xmlstr => {
+                        const parser = new DOMParser()
+                        const xml = parser.parseFromString(xmlstr, "text/xml");
+                        const pref = xml.getElementsByTagName("prefecture")
+                        updatePlace(pref[0].textContent)
+                    })
+            });
+        }
+        function updatePlace(pref) {
+            document.getElementById("jp-place").textContent = pref;
+            document.getElementById("en-place").textContent = prefJPToEn[pref]
+        }
+        update()
+        setInterval(update, 10000);
+    </script>
+</body>
+
+</html>
