@@ -52,26 +52,45 @@
         <p>I live in <span id="en-place" class="prefecture-en"></span></p>
     </div>
     <script>
+        const INTERVAL = 10000;
+        const TEST = true;
         const prefJPToEn = { "北海道": "HOKKAIDO", "青森県": "AOMORI", "岩手県": "IWATE", "宮城県": "MIYAGI", "秋田県": "AKITA", "山形県": "YAMAGATA", "福島県": "FUKUSHIMA", "茨城県": "IBARAKI", "栃木県": "TOCHIGI", "群馬県": "GUNMA", "埼玉県": "SAITAMA", "千葉県": "CHIBA", "東京都": "TOKYO", "神奈川県": "KANAGAWA", "新潟県": "NIIGATA", "富山県": "TOYAMA", "石川県": "ISHIKAWA", "福井県": "FUKUI", "山梨県": "YAMANASHI", "長野県": "NAGANO", "岐阜県": "GIFU", "静岡県": "SHIZUOKA", "愛知県": "AICHI", "三重県": "MIE", "滋賀県": "SHIGA", "京都府": "KYOTO", "大阪府": "OSAKA", "兵庫県": "HYOGO", "奈良県": "NARA", "和歌山県": "WAKAYAMA", "鳥取県": "TOTTORI", "島根県": "SHIMANE", "岡山県": "OKAYAMA", "広島県": "HIROSHIMA", "山口県": "YAMAGUCHI", "徳島県": "TOKUSHIMA", "香川県": "KAGAWA", "愛媛県": "EHIME", "高知県": "KOCHI", "福岡県": "FUKUOKA", "佐賀県": "SAGA", "長崎県": "NAGASAKI", "熊本県": "KUMAMOTO", "大分県": "OITA", "宮崎県": "MIYAZAKI", "鹿児島県": "KAGOSHIMA", "沖縄県": "OKINAWA" }
+        const testData = [[43.06417, 141.34694], [40.82444, 140.74], [39.70361, 141.1525], [38.26889, 140.87194], [39.71861, 140.1025], [38.24056, 140.36333], [37.75, 140.46778], [36.34139, 140.44667], [36.56583, 139.88361], [36.39111, 139.06083], [35.85694, 139.64889], [35.60472, 140.12333], [35.68944, 139.69167], [35.44778, 139.6425], [37.90222, 139.02361], [36.69528, 137.21139], [36.59444, 136.62556], [36.06528, 136.22194], [35.66389, 138.56833], [36.65139, 138.18111], [35.39111, 136.72222], [34.97694, 138.38306], [35.18028, 136.90667], [34.73028, 136.50861], [35.00444, 135.86833], [35.02139, 135.75556], [34.68639, 135.52], [34.69139, 135.18306], [34.68528, 135.83278], [34.22611, 135.1675], [35.50361, 134.23833], [35.47222, 133.05056], [34.66167, 133.935], [34.39639, 132.45944], [34.18583, 131.47139], [34.06583, 134.55944], [34.34028, 134.04333], [33.84167, 132.76611], [33.55972, 133.53111], [33.60639, 130.41806], [33.24944, 130.29889], [32.74472, 129.87361], [32.78972, 130.74167], [33.23806, 131.6125], [31.91111, 131.42389], [31.56028, 130.55806], [26.2125, 127.68111]]
         function update() {
             navigator.geolocation.getCurrentPosition((pos) => {
-                fetch(`http://geoapi.heartrails.com/api/xml?method=searchByGeoLocation&x=${pos.coords.longitude}&y=${pos.coords.latitude}`)
-                    .then(resp => resp.text())
-                    .then(xmlstr => {
-                        const parser = new DOMParser()
-                        const xml = parser.parseFromString(xmlstr, "text/xml");
-                        const pref = xml.getElementsByTagName("prefecture")
-                        updatePlace(pref[0].textContent)
-                    })
+                updateByLatLon([pos.coords.latitude, pos.coords.longitude]);
             });
+        }
+        function updateByLatLon(latlon) {
+            fetch(`http://geoapi.heartrails.com/api/xml?method=searchByGeoLocation&x=${latlon[1]}&y=${latlon[0]}`)
+                .then(resp => resp.text())
+                .then(xmlstr => {
+                    const parser = new DOMParser()
+                    const xml = parser.parseFromString(xmlstr, "text/xml");
+                    const pref = xml.getElementsByTagName("prefecture")
+                    updatePlace(pref[0].textContent)
+                })
         }
         function updatePlace(pref) {
             document.getElementById("type").textContent = pref[pref.length - 1];
             document.getElementById("jp-place").textContent = pref;
             document.getElementById("en-place").textContent = prefJPToEn[pref]
         }
-        update()
-        setInterval(update, 10000);
+        if (TEST) {
+            // 500msで47都道府県のテストを実施。
+            let i = 0;
+            const func = (data) => {
+                if (data) {
+                    i++;
+                    updateByLatLon(data)
+                    setTimeout(() => func(testData[i]), 500);
+                }
+            }
+            func(testData[i])
+        } else {
+            update()
+            setInterval(update, INTERVAL);
+        }
     </script>
 </body>
 
